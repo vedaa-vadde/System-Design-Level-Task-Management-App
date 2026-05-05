@@ -1,6 +1,8 @@
 import express from 'express'
 import {config} from 'dotenv'
 import {connect} from 'mongoose'
+import cookieParser from "cookie-parser";
+import AuthRoutes from "./routes/AuthRoutes.js"
 
 
 config()
@@ -11,7 +13,10 @@ const app=express()
 const port =process.env.PORT || 5000;
 
 app.use(express.json());
+app.use(cookieParser());
 
+//routes
+app.use("/api/auth",AuthRoutes);
 
 const connectDB=async()=>{
     try{
