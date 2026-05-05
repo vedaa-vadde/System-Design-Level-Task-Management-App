@@ -6,6 +6,8 @@ const UserSchema=new Schema({
     },
     email:{type:String,
            required:[true,"emailrequired"],
+           trim:true,
+           lowercase:true,
            unique:[true,"email already exist"]
     },
     password:{type:String,
@@ -13,4 +15,4 @@ const UserSchema=new Schema({
     }
     
 })
-export const UserModel=model("user",UserSchema);
+export const UserModel=model("UserModel",UserSchema);
