@@ -2,8 +2,8 @@ POST http://localhost:5000/api/auth/register
 Content-Type: application/json
 
 {
-  "name": "vedaa",
-  "email": "vedaa@gmail.com",
+  "name": "khushal",
+  "email": "khushal@gmail.com",
   "password": "123456"
 }
 
@@ -14,8 +14,8 @@ POST http://localhost:5000/api/auth/login
 content-Type: application/json
 
 {
-    "name":"vedaa",
-    "email":"vedaa@gmail.com",
+    "name":"khushal",
+    "email":"khushal@gmail.com",
     "password":"123456"
 }
  
@@ -57,12 +57,12 @@ POST http://localhost:5000/api/lists
 content-Type: application/json
 
 {
-  "title":"Testing",
-  "boardId":"69fc491f0cbb18f476786f47"
+  "title":"khushal Testing",
+  "boardId":"69fc488c0cbb18f476786f3c"
 }
 
 ###get boards list
-GET http://localhost:5000/api/lists/69fc491f0cbb18f476786f47
+GET http://localhost:5000/api/lists/69fc488c0cbb18f476786f3c
 
 ###update list
 PUT  http://localhost:5000/api/lists/69fc491f0cbb18f476786f48
@@ -148,3 +148,6 @@ Content-Type: application/json
     }
   ]
 }
+
+###get activity
+GET http://localhost:5000/api/activity/69fc488c0cbb18f476786f3c

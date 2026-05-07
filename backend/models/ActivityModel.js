@@ -1,39 +1,48 @@
 import { Schema, model } from "mongoose";
 
-const ActivitySchema = new Schema({
-    boardId:{
-        type:Schema.Types.ObjectId,
-        ref:"BoardModel",
-        required:true
+const ActivitySchema = new Schema(
+  {
+    // which board this activity belongs to
+    boardId: {
+      type: Schema.Types.ObjectId,
+      ref: "BoardModel",
+      required: true,
     },
 
-    listId:{
-        type:Schema.Types.ObjectId,
-        ref:"ListModel"
+    // optional list reference
+    listId: {
+      type: Schema.Types.ObjectId,
+      ref: "ListModel",
     },
 
-    cardId:{
-        type:Schema.Types.ObjectId,
-        ref:"CardModel"
+    // optional card reference
+    cardId: {
+      type: Schema.Types.ObjectId,
+      ref: "CardModel",
     },
 
-    userId:{
-        type:Schema.Types.ObjectId,
-        ref:"UserModel",
-        required:true
+    // who did action
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "UserModel",
+      required: true,
     },
 
-    action:{
-        type:String,
-        required:true
+    // action text
+    action: {
+      type: String,
+      required: true,
     },
 
-    details:{
-        type:String
-    }
-
-},{
-    timestamps:true
-});
+    // optional metadata
+    details: {
+      type: String,
+      default: "",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 export default model("ActivityModel", ActivitySchema);

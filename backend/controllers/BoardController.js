@@ -1,6 +1,6 @@
 import BoardModel from "../models/boardModel.js";
 import ListModel from "../models/ListModel.js";
-
+import { createActivity } from "./ActivityController.js";
 //create board
 
 export const createBoard =async (req,res)=>{
@@ -22,7 +22,14 @@ console.log("body received");
         members:[req.user.id],
         isDefault: false,
     });
+    await createActivity({
+  boardId: board._id,
+  userId: req.user.id,
+  action: "created board",
+  details: `Created board ${board.title}`,
+});
 console.log("board created");
+
     //deafult lists
 
     const defaultLists=[{
@@ -107,6 +114,12 @@ export const deleteBoard=async(req,res)=>{
           if(board.owner.toString() !==req.user.id){
             return res.status(403).json({message:"Unauthorized"});
           }
+  await createActivity({
+  boardId: board._id,
+  userId: req.user.id,
+  action: "deleted board",
+  details: `Deleted board ${board.title}`,
+});
 
           //delete board
 
@@ -120,3 +133,4 @@ export const deleteBoard=async(req,res)=>{
         res.status(500).json({message:err.message})
     }
 };
+
