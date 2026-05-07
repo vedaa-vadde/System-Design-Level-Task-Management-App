@@ -2,7 +2,7 @@ POST http://localhost:5000/api/auth/register
 Content-Type: application/json
 
 {
-  "name": "Khushal",
+  "name": "khushal",
   "email": "khushal@gmail.com",
   "password": "123456"
 }
@@ -14,7 +14,7 @@ POST http://localhost:5000/api/auth/login
 content-Type: application/json
 
 {
-    "name":"tkhushal",
+    "name":"khushal",
     "email":"khushal@gmail.com",
     "password":"123456"
 }
@@ -39,26 +39,33 @@ POST http://localhost:5000/api/boards
 Content-Type: application/json
 
 {
-  "title":"Test board"
+  "title":"Test2"
 }
 ###
-<<<<<<< HEAD
-GET http://localhost:5000/api/auth/protected
+//get signle board
+get http://localhost:5000/api/boards/69fc48b80cbb18f476786f43
+cookie: token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZmMzNTAwZGQ4MzQ2NDkyYWUzYjc1OSIsImlhdCI6MTc3ODE0MDExNSwiZXhwIjoxNzc4MjI2NTE1fQ.r9v-7W8kA761ZB5T-V9IW_Q5DaSRSSS-ljfC2jLcAX4"
+
+###delete board
+
+DELETE  http://localhost:5000/api/boards/69fc48b80cbb18f476786f43
+cookie: token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZmMzNTAwZGQ4MzQ2NDkyYWUzYjc1OSIsImlhdCI6MTc3ODE0MDExNSwiZXhwIjoxNzc4MjI2NTE1fQ.r9v-7W8kA761ZB5T-V9IW_Q5DaSRSSS-ljfC2jLcAX4"
+
 
 ###create list
 POST http://localhost:5000/api/lists
 content-Type: application/json
 
 {
-  "title":"Testing",
-  "boardId":"BOARD_ID"
+  "title":"khushal Testing",
+  "boardId":"69fc488c0cbb18f476786f3c"
 }
 
 ###get boards list
-GET http://localhost:5000/api/lists/BOARD_ID
+GET http://localhost:5000/api/lists/69fc488c0cbb18f476786f3c
 
 ###update list
-PUT  http://localhost:5000/api/lists/LIST_ID
+PUT  http://localhost:5000/api/lists/69fc491f0cbb18f476786f48
 content-Type: application/json
 
 {
@@ -66,7 +73,7 @@ content-Type: application/json
 }
 
 ###delete list
-DELETE http://localhost:5000/api/lists/LIST_ID
+DELETE http://localhost:5000/api/lists/69fc491f0cbb18f476786f48
 
 ###reorder lists
 PUT http://localhost:5000/api/lists/reorder/all
@@ -75,11 +82,11 @@ content-Type: application/json
 {
   "lists":[
     {
-      "id":"LIST_ID_1",
+      "id":"69fc491f0cbb18f476786f49",
       "order":1
     },
     {
-      "id":"LIST_ID_2",
+      "id":"69fc493d0cbb18f476786f4b",
       "order":2
     }
   ]
@@ -90,21 +97,21 @@ POST http://localhost:5000/api/cards
 Content-Type: application/json
 
 {
-  "title":"thinali",
-  "description":"eat biryani w team",
-  "listId":"LIST_ID",
-  "boardId":"BOARD_ID",
+  "title":"eat",
+  "description":"w team",
+  "listId":"69fc491f0cbb18f476786f49",
+  "boardId":"69fc491f0cbb18f476786f47",
   "status":"ongoing"
 }
 
 ###get board cards
-GET http://localhost:5000/api/cards/board/BOARD_ID
+GET http://localhost:5000/api/cards/board/69fc491f0cbb18f476786f47
 
 ###get list cards
-GET http://localhost:5000/api/cards/list/LIST_ID
+GET http://localhost:5000/api/cards/list/69fc491f0cbb18f476786f49
 
 ###update card
-PUT http://localhost:5000/api/cards/CARD_ID
+PUT http://localhost:5000/api/cards/69fc4a4a0cbb18f476786f4d
 Content-Type: application/json
 
 {
@@ -113,15 +120,15 @@ Content-Type: application/json
 }
 
 ###delete card
-DELETE http://localhost:5000/api/cards/CARD_ID
+DELETE http://localhost:5000/api/cards/69fc4a4a0cbb18f476786f4d
 
 ###move card
-PUT http://localhost:5000/api/cards/move/CARD_ID
+PUT http://localhost:5000/api/cards/move/69fc4a180cbb18f476786f4c
 Content-Type: application/json
 
 {
-   "newListId":"NEW_LIST_ID",
-   "newOrder":2
+   "newListId":"69fc491f0cbb18f476786f4a",
+   "newOrder":1
 }
 
 
@@ -132,22 +139,15 @@ Content-Type: application/json
 {
   "cards":[
     {
-      "id":"CARD_ID_1",
-      "order":1
+      "id":"69fc4b370cbb18f476786f4e",
+      "order":2
     },
     {
-      "id":"CARD_ID_2",
-      "order":2
+      "id":"69fc4b6c0cbb18f476786f4f",
+      "order":1
     }
   ]
 }
-=======
-//get signle board
-get http://localhost:5000/api/boards/69fc4108e53ca566fc917187
-cookie: token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZmMzNTAwZGQ4MzQ2NDkyYWUzYjc1OSIsImlhdCI6MTc3ODE0MDExNSwiZXhwIjoxNzc4MjI2NTE1fQ.r9v-7W8kA761ZB5T-V9IW_Q5DaSRSSS-ljfC2jLcAX4"
 
-###delete board
-
-DELETE  http://localhost:5000/api/boards/69fc4108e53ca566fc917187
-cookie: token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZmMzNTAwZGQ4MzQ2NDkyYWUzYjc1OSIsImlhdCI6MTc3ODE0MDExNSwiZXhwIjoxNzc4MjI2NTE1fQ.r9v-7W8kA761ZB5T-V9IW_Q5DaSRSSS-ljfC2jLcAX4"
->>>>>>> 6187754177083ba738cd1a4fdd05987f3b47e649
+###get activity
+GET http://localhost:5000/api/activity/69fc488c0cbb18f476786f3c
