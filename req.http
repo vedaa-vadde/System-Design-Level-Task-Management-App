@@ -42,6 +42,104 @@ Content-Type: application/json
   "title":"Test board"
 }
 ###
+GET http://localhost:5000/api/auth/protected
+
+###create list
+POST http://localhost:5000/api/lists
+content-Type: application/json
+
+{
+  "title":"Testing",
+  "boardId":"BOARD_ID"
+}
+
+###get boards list
+GET http://localhost:5000/api/lists/BOARD_ID
+
+###update list
+PUT  http://localhost:5000/api/lists/LIST_ID
+content-Type: application/json
+
+{
+   "title":"Updated List"
+}
+
+###delete list
+DELETE http://localhost:5000/api/lists/LIST_ID
+
+###reorder lists
+PUT http://localhost:5000/api/lists/reorder/all
+content-Type: application/json
+
+{
+  "lists":[
+    {
+      "id":"LIST_ID_1",
+      "order":1
+    },
+    {
+      "id":"LIST_ID_2",
+      "order":2
+    }
+  ]
+}
+
+###create card
+POST http://localhost:5000/api/cards
+Content-Type: application/json
+
+{
+  "title":"thinali",
+  "description":"eat biryani w team",
+  "listId":"LIST_ID",
+  "boardId":"BOARD_ID",
+  "status":"ongoing"
+}
+
+###get board cards
+GET http://localhost:5000/api/cards/board/BOARD_ID
+
+###get list cards
+GET http://localhost:5000/api/cards/list/LIST_ID
+
+###update card
+PUT http://localhost:5000/api/cards/CARD_ID
+Content-Type: application/json
+
+{
+   "title":"Updated Card",
+  "status":"done"
+}
+
+###delete card
+DELETE http://localhost:5000/api/cards/CARD_ID
+
+###move card
+PUT http://localhost:5000/api/cards/move/CARD_ID
+Content-Type: application/json
+
+{
+   "newListId":"NEW_LIST_ID",
+   "newOrder":2
+}
+
+
+###reorder cards
+PUT http://localhost:5000/api/cards/reorder/all
+Content-Type: application/json
+
+{
+  "cards":[
+    {
+      "id":"CARD_ID_1",
+      "order":1
+    },
+    {
+      "id":"CARD_ID_2",
+      "order":2
+    }
+  ]
+}
 //get signle board
 get http://localhost:5000/api/boards/69fc4108e53ca566fc917187
 cookie: token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZmMzNTAwZGQ4MzQ2NDkyYWUzYjc1OSIsImlhdCI6MTc3ODE0MDExNSwiZXhwIjoxNzc4MjI2NTE1fQ.r9v-7W8kA761ZB5T-V9IW_Q5DaSRSSS-ljfC2jLcAX4"

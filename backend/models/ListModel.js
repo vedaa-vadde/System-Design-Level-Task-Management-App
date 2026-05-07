@@ -4,6 +4,7 @@ const ListSchema=new Schema({
     title:{
         type:String,
         required:[true,"title required"],
+        trim:true,
     },
 
     //which boardthis lst belongs

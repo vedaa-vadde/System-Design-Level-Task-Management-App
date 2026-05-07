@@ -3,7 +3,13 @@ import {config} from 'dotenv'
 import {connect} from 'mongoose'
 import cookieParser from "cookie-parser";
 import AuthRoutes from "./routes/AuthRoutes.js"
-import BoardRoutes from "./rou tes/BoardRoutes.js"
+
+
+
+import ListRoutes from "./routes/ListRoutes.js";
+import CardRoutes from "./routes/CardRoutes.js";
+import BoardRoutes from "./routes/BoardRoutes.js";
+
 
 
 config()
@@ -15,10 +21,11 @@ const port =process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser());
-
 //routes
+app.use("/api/lists", ListRoutes);
   //user
 app.use("/api/auth",AuthRoutes);
+app.use("/api/cards", CardRoutes);
 
 //board routes
 

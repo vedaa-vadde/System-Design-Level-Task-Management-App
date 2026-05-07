@@ -135,7 +135,7 @@ export const logoutUser=(req,res)=>{
     //clear cookie
     res.clearCookie("token");
 
-    res.json({message:"logged oit sucessfully"});
+    res.json({message:"logged out sucessfully"});
 }catch(err){
     res.status(500).json({message:err.message})
 }
