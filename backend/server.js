@@ -3,7 +3,7 @@ import {config} from 'dotenv'
 import {connect} from 'mongoose'
 import cookieParser from "cookie-parser";
 import AuthRoutes from "./routes/AuthRoutes.js"
-import BoardRoutes from "./routes/BoardRoutes.js"
+import BoardRoutes from "./rou tes/BoardRoutes.js"
 
 
 config()
