@@ -4,6 +4,7 @@ const cardSchema=new Schema({
     title:{
         type:String,
         required:[true,"title required"],
+        trim: true,
     },
 
     description:{
@@ -16,7 +17,13 @@ const cardSchema=new Schema({
         ref:"ListModel",
         required:true,
     },
-   //position in list
+     // which board this card belongs to
+    boardId: {
+      type: Schema.Types.ObjectId,
+      ref: "BoardModel",
+      required: true,
+    },
+   //position in list-drag drop order
     order:{
         type:Number,
         default:0,
@@ -26,12 +33,19 @@ const cardSchema=new Schema({
         type:Schema.Types.ObjectId,
         ref:"UserModel",
     }],
+    status:{
+        type:String,
+        enum:["done","ongoing","pending"],
+        default:"ongoing",
+    },
 //files
     attachments:[
-        String
-    ]
-
-},
+       {
+        type:String,
+       },
+    ],
+       },
+   
 {
 timestamps:true
 }

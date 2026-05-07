@@ -3,8 +3,8 @@ import {config} from 'dotenv'
 import {connect} from 'mongoose'
 import cookieParser from "cookie-parser";
 import AuthRoutes from "./routes/AuthRoutes.js"
-
-
+import ListRoutes from "./routes/ListRoutes.js";
+import CardRoutes from "./routes/CardRoutes.js";
 config()
 
 const app=express()
@@ -14,9 +14,10 @@ const port =process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser());
-
 //routes
+app.use("/api/lists", ListRoutes);
 app.use("/api/auth",AuthRoutes);
+app.use("/api/cards", CardRoutes);
 
 const connectDB=async()=>{
     try{
