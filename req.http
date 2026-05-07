@@ -2,25 +2,47 @@ POST http://localhost:5000/api/auth/register
 Content-Type: application/json
 
 {
-  "name": "testuser",
-  "email": "test@gmail.com",
+  "name": "Khushal",
+  "email": "khushal@gmail.com",
   "password": "123456"
 }
-###
+
+
+###login
 
 POST http://localhost:5000/api/auth/login
 content-Type: application/json
 
 {
-    "name":"testuser",
-    "email":"test@gmail.com",
+    "name":"tkhushal",
+    "email":"khushal@gmail.com",
     "password":"123456"
 }
-
-###
+ 
+###logout
 
 POST http://localhost:5000/api/auth/logout
+
+
+###protected route
+GET http://localhost:5000/api/auth/protected
+
+
+
+###get boards(default if not created
+
+GET http://localhost:5000/api/boards
+cookie: token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZmMzNTAwZGQ4MzQ2NDkyYWUzYjc1OSIsImlhdCI6MTc3ODEzNjM1NSwiZXhwIjoxNzc4MjIyNzU1fQ.oipast2GsB0_FRWM_7Fn2lLKb8qjM2FyuZpev4OZp6I"
+
+###create board
+POST http://localhost:5000/api/boards
+Content-Type: application/json
+
+{
+  "title":"Test board"
+}
 ###
+<<<<<<< HEAD
 GET http://localhost:5000/api/auth/protected
 
 ###create list
@@ -119,3 +141,13 @@ Content-Type: application/json
     }
   ]
 }
+=======
+//get signle board
+get http://localhost:5000/api/boards/69fc4108e53ca566fc917187
+cookie: token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZmMzNTAwZGQ4MzQ2NDkyYWUzYjc1OSIsImlhdCI6MTc3ODE0MDExNSwiZXhwIjoxNzc4MjI2NTE1fQ.r9v-7W8kA761ZB5T-V9IW_Q5DaSRSSS-ljfC2jLcAX4"
+
+###delete board
+
+DELETE  http://localhost:5000/api/boards/69fc4108e53ca566fc917187
+cookie: token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZmMzNTAwZGQ4MzQ2NDkyYWUzYjc1OSIsImlhdCI6MTc3ODE0MDExNSwiZXhwIjoxNzc4MjI2NTE1fQ.r9v-7W8kA761ZB5T-V9IW_Q5DaSRSSS-ljfC2jLcAX4"
+>>>>>>> 6187754177083ba738cd1a4fdd05987f3b47e649

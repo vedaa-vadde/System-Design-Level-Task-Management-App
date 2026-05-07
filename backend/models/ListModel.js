@@ -1,4 +1,4 @@
-import {Schema,model} from 'mongoose'
+import {Schema,model,mongoose} from 'mongoose'
 
 const ListSchema=new Schema({
     title:{
@@ -23,4 +23,8 @@ const ListSchema=new Schema({
 {timestamps:true}
 );
 
-export default model("ListModel",ListSchema);
+const ListModel =
+ mongoose.models.ListModel ||
+  mongoose.model("ListModel", ListSchema);
+
+export default ListModel;

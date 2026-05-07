@@ -39,6 +39,7 @@ const cardSchema=new Schema({
         default:"ongoing",
     },
 //files
+<<<<<<< HEAD
     attachments:[
        {
         type:String,
@@ -46,6 +47,13 @@ const cardSchema=new Schema({
     ],
        },
    
+=======
+    attachments:[{
+        type:String,
+ } ]
+
+},
+>>>>>>> 6187754177083ba738cd1a4fdd05987f3b47e649
 {
 timestamps:true
 }

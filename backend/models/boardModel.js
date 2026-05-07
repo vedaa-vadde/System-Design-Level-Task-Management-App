@@ -16,6 +16,11 @@ const BoardSchema=new Schema({
         type:Schema.Types.ObjectId,
         ref:"UserModel",
     }],
+
+    isDefault:{
+        type:Boolean,
+        default:false,
+    },
 },
 { timestamps: true}
 
