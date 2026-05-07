@@ -2,6 +2,8 @@ import exp from 'express'
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 import {UserModel} from "../models/userModel.js";
+import BoardModel from "../models/boardModel.js";
+import ListModel from "../models/ListModel.js";
 
 //register
 
@@ -26,14 +28,70 @@ export const registerUser =async (req,res)=>{
         name,email,password:hashPassword,
     });
 
-    res.status(201).json({message:"User registered sucesfully",user})
+   
 
+
+
+//create default boards
+
+const defaultBoards=[
+    {
+        title:"Proffessional",
+        owner:user._id,
+        members:[user._id],
+        isDefault:true,
+    },
+    {
+        title:"Personal",
+        owner:user._id,
+        members:[user._id],
+        isDefault:true,
+    }
+]
+
+//create boards
+
+const createdBoards = await BoardModel.insertMany(defaultBoards);
+console.log(createdBoards)
+//create default lists
+
+const defaultLists=[];
+console.log(createdBoards);
+createdBoards.forEach((board)=>{
+    createdBoards.forEach((board) => {
+
+  console.log(board);
+
+});
+    defaultLists.push({
+        title:"Today",
+        boardId:board._id,
+        order:1,
+    },
+    {
+        title:"This week",
+        boardId:board._id,
+        order:2,
+    },{
+        title:"Later",
+        boardId:board._id,
+        order:3,
+    }
+);
+});
+
+console.log(defaultLists);
+await ListModel.insertMany(defaultLists);
+
+ res.status(201).json({message:"User registered sucesfully",user})
 
 }catch(err){
     res.status(500).json({message:err.message});
 }
 
-};
+}
+
+
 
 //login
 

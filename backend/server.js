@@ -3,6 +3,7 @@ import {config} from 'dotenv'
 import {connect} from 'mongoose'
 import cookieParser from "cookie-parser";
 import AuthRoutes from "./routes/AuthRoutes.js"
+import BoardRoutes from "./routes/BoardRoutes.js"
 
 
 config()
@@ -16,7 +17,13 @@ app.use(express.json());
 app.use(cookieParser());
 
 //routes
+  //user
 app.use("/api/auth",AuthRoutes);
+
+//board routes
+
+app.use("/api/boards",BoardRoutes);
+
 
 const connectDB=async()=>{
     try{

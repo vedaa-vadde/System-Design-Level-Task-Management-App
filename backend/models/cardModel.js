@@ -27,9 +27,9 @@ const cardSchema=new Schema({
         ref:"UserModel",
     }],
 //files
-    attachments:[
-        String
-    ]
+    attachments:[{
+        type:String,
+ } ]
 
 },
 {
