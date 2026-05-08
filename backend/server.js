@@ -8,9 +8,8 @@ import AuthRoutes from "./routes/AuthRoutes.js"
 
 import ListRoutes from "./routes/ListRoutes.js";
 import CardRoutes from "./routes/CardRoutes.js";
-import BoardRoutes from "./routes/BoardRoutes.js";
-
-
+import BoardRoutes from "./routes/BoardRoutes.js"
+import ActivityRoutes from "./routes/ActivityRoutes.js";
 
 config()
 
@@ -26,6 +25,7 @@ app.use("/api/lists", ListRoutes);
   //user
 app.use("/api/auth",AuthRoutes);
 app.use("/api/cards", CardRoutes);
+app.use("/api/activity", ActivityRoutes);
 
 //board routes
 

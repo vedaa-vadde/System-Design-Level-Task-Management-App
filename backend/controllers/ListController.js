@@ -1,7 +1,7 @@
 import ListModel from "../models/listModel.js";
 import BoardModel from "../models/boardModel.js";
 
-
+import { createActivity } from "./ActivityController.js";
 // CREATE LIST
 export const createList = async (req, res) => {
   try {
@@ -14,7 +14,6 @@ export const createList = async (req, res) => {
         message: "Title and boardId required",
       });
     }
-
     // check board exists
     const board = await BoardModel.findById(boardId);
 
@@ -32,6 +31,15 @@ export const createList = async (req, res) => {
       // latest position
       order: Date.now(),
     });
+
+    //create activity log
+    await createActivity({
+  boardId,
+  listId: list._id,
+  userId: req.user.id,
+  action: "created list",
+  details: `Created list ${title}`,
+});
 
     res.status(201).json({
       message: "List created successfully",
@@ -82,7 +90,7 @@ export const updateList = async (req, res) => {
         title,
       },
       {
-        new: true,
+        returnDocument: "after"
       }
     );
 
@@ -91,6 +99,13 @@ export const updateList = async (req, res) => {
         message: "List not found",
       });
     }
+    await createActivity({
+  boardId: list.boardId,
+  listId: list._id,
+  userId: req.user.id,
+  action: "updated list",
+  details: `Updated list to ${title}`,
+});
 
     res.json({
       message: "List updated successfully",
@@ -121,7 +136,13 @@ export const deleteList = async (req, res) => {
     }
 
     await ListModel.findByIdAndDelete(id);
-
+await createActivity({
+  boardId: list.boardId,
+  listId: list._id,
+  userId: req.user.id,
+  action: "deleted list",
+  details: `Deleted list ${list.title}`,
+});
     res.json({
       message: "List deleted successfully",
     });

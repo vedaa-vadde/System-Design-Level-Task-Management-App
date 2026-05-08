@@ -1,7 +1,7 @@
 import CardModel from "../models/cardModel.js";
 import ListModel from "../models/listModel.js";
 
-
+import { createActivity } from "./ActivityController.js";
 // create card
 export const createCard = async (req, res) => {
   try {
@@ -43,7 +43,14 @@ export const createCard = async (req, res) => {
       // drag-drop ordering
       order: Date.now(),
     });
-
+await createActivity({
+  boardId,
+  listId,
+  cardId: card._id,
+  userId: req.user.id,
+  action: "created card",
+  details: `Created card ${title}`,
+});
     res.status(201).json({
       message: "Card created successfully",
       card,
@@ -114,7 +121,7 @@ export const updateCard = async (req, res) => {
       id,
       req.body,
       {
-        new: true,
+        returnDocument: "after",
       }
     );
 
@@ -123,7 +130,14 @@ export const updateCard = async (req, res) => {
         message: "Card not found",
       });
     }
-
+await createActivity({
+  boardId: updatedCard.boardId,
+  listId: updatedCard.listId,
+  cardId: updatedCard._id,
+  userId: req.user.id,
+  action: "updated card",
+  details: `Updated card ${updatedCard.title}`,
+});
     res.json({
       message: "Card updated successfully",
       updatedCard,
@@ -151,7 +165,14 @@ export const deleteCard = async (req, res) => {
         message: "Card not found",
       });
     }
-
+await createActivity({
+  boardId: card.boardId,
+  listId: card.listId,
+  cardId: card._id,
+  userId: req.user.id,
+  action: "deleted card",
+  details: `Deleted card ${card.title}`,
+});
     await CardModel.findByIdAndDelete(id);
 
     res.json({
@@ -193,7 +214,14 @@ export const moveCard = async (req, res) => {
     card.order = newOrder;
 
     await card.save();
-
+await createActivity({
+  boardId: card.boardId,
+  listId: newListId,
+  cardId: card._id,
+  userId: req.user.id,
+  action: "moved card",
+  details: `Moved card ${card.title}`,
+});
     res.json({
       message: "Card moved successfully",
       card,
