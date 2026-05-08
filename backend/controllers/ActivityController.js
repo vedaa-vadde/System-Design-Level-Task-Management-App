@@ -1,7 +1,8 @@
 import ActivityModel from "../models/activityModel.js";
+import { getIO } from "../sockets/socket.js";
 
 
-// create activity
+// CREATE ACTIVITY
 export const createActivity = async ({
   boardId,
   listId = null,
@@ -11,7 +12,7 @@ export const createActivity = async ({
   details = "",
 }) => {
   try {
-    await ActivityModel.create({
+    const activity = await ActivityModel.create({
       boardId,
       listId,
       cardId,
@@ -19,15 +20,45 @@ export const createActivity = async ({
       action,
       details,
     });
+
+    // populate user details
+    const populatedActivity = await ActivityModel.findById(
+      activity._id
+    ).populate("userId", "name email");
+
+    // socket emit realtime activity feed
+    const io = getIO();
+
+    io.to(boardId.toString()).emit(
+      "activity-created",
+      populatedActivity
+    );
+
+    console.log("Socket emitted: activity-created");
+
+    return populatedActivity;
+
   } catch (err) {
-    console.log("Activity log error:", err.message);
+    console.error(
+      "Activity creation failed:",
+      err.message
+    );
+
+    throw err;
   }
 };
 
 
-// get board activities
-export const getBoardActivities = async (req, res) => {
+
+// GET BOARD ACTIVITIES
+export const getBoardActivities = async (
+  req,
+  res,
+  next
+) => {
   try {
+    console.log("Get Activities API called");
+
     const { boardId } = req.params;
 
     const activities = await ActivityModel.find({
@@ -37,9 +68,8 @@ export const getBoardActivities = async (req, res) => {
       .sort({ createdAt: -1 });
 
     res.json(activities);
+
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };

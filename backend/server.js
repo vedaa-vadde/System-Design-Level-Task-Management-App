@@ -1,46 +1,74 @@
-import express from 'express'
-import {config} from 'dotenv'
-import {connect} from 'mongoose'
+import express from "express";
+import { config } from "dotenv";
+import { connect } from "mongoose";
 import cookieParser from "cookie-parser";
-import AuthRoutes from "./routes/AuthRoutes.js"
+import http from "http";
 
-
-
+import AuthRoutes from "./routes/AuthRoutes.js";
 import ListRoutes from "./routes/ListRoutes.js";
 import CardRoutes from "./routes/CardRoutes.js";
-import BoardRoutes from "./routes/BoardRoutes.js"
+import BoardRoutes from "./routes/BoardRoutes.js";
 import ActivityRoutes from "./routes/ActivityRoutes.js";
+import UploadRoutes from "./routes/UploadRoutes.js";
 
-config()
+import { errorMiddleware } from "./middlewares/errorMiddleware.js";
+import { initSocket } from "./sockets/socket.js";
 
-const app=express()
+config();
 
-//importing port
-const port =process.env.PORT || 5000;
+const app = express();
 
+const port = process.env.PORT || 5000;
+
+
+// middlewares
 app.use(express.json());
 app.use(cookieParser());
-//routes
+
+
+// static folder
+app.use("/uploads", express.static("uploads"));
+
+
+// routes
+app.use("/api/auth", AuthRoutes);
+app.use("/api/boards", BoardRoutes);
 app.use("/api/lists", ListRoutes);
-  //user
-app.use("/api/auth",AuthRoutes);
 app.use("/api/cards", CardRoutes);
 app.use("/api/activity", ActivityRoutes);
-
-//board routes
-
-app.use("/api/boards",BoardRoutes);
+app.use("/api/upload", UploadRoutes);
 
 
-const connectDB=async()=>{
-    try{
-        await connect(process.env.DB_URL)
-        console.log("db connected");
-        app.listen(port,()=>{
-            console.log(`server running on port  http://localhost:${port}`)
-        })
-    }catch(err){
-        console.log(err)
-    }
+// error middleware (must be after routes)
+app.use(errorMiddleware);
+
+
+// DB connection + server start
+const connectDB = async () => {
+  try {
+    await connect(process.env.DB_URL);
+
+    console.log("DB Connected");
+
+
+    // create http server
+    const server = http.createServer(app);
+
+
+    // initialize socket
+    initSocket(server);
+
+
+    // listen
+    server.listen(port, () => {
+      console.log(
+        `Server running on http://localhost:${port}`
+      );
+    });
+
+  } catch (err) {
+    console.log(err);
+  }
 };
+
 connectDB();

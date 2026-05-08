@@ -1,142 +1,193 @@
-import exp from 'express'
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken"
-import {UserModel} from "../models/userModel.js";
+import jwt from "jsonwebtoken";
+
+import { UserModel } from "../models/userModel.js";
 import BoardModel from "../models/boardModel.js";
 import ListModel from "../models/ListModel.js";
 
-//register
 
-export const registerUser =async (req,res)=>{
-    try{
-        const {name,email,password}=req.body;
+// REGISTER
+export const registerUser = async (req, res, next) => {
+  try {
+    console.log("Register API called");
 
-        //check if user exists
+    const { name, email, password } = req.body;
 
-        const existingUser=await UserModel.findOne({email});
-    
-
-    if(existingUser){
-     return res.status(400).json({message:"User already exists"});
-
+    // validation
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: "Name, email and password required",
+      });
     }
-    //hashing passowrd
-    const hashPassword=await bcrypt.hash(password,10);
 
-    //create user in db
-    const user=await UserModel.create({
-        name,email,password:hashPassword,
+    // existing user check
+    const existingUser = await UserModel.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists",
+      });
+    }
+
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // create user
+    const user = await UserModel.create({
+      name,
+      email,
+      password: hashedPassword,
     });
 
-   
+    console.log("User created:", user._id);
 
+    /*
+      Create default boards:
+      Professional
+      Personal
+    */
+    const defaultBoards = [
+      {
+        title: "Professional",
+        owner: user._id,
+        members: [user._id],
+        isDefault: true,
+      },
+      {
+        title: "Personal",
+        owner: user._id,
+        members: [user._id],
+        isDefault: true,
+        },
+    ];
 
+    const createdBoards = await BoardModel.insertMany(
+      defaultBoards
+    );
 
-//create default boards
+    console.log("Default boards created");
 
-const defaultBoards=[
-    {
-        title:"Proffessional",
-        owner:user._id,
-        members:[user._id],
-        isDefault:true,
-    },
-    {
-        title:"Personal",
-        owner:user._id,
-        members:[user._id],
-        isDefault:true,
-    }
-]
+    /*
+      Create default lists:
+      Today
+      This Week
+      Later
+    */
+    const defaultLists = [];
 
-//create boards
-
-const createdBoards = await BoardModel.insertMany(defaultBoards);
-console.log(createdBoards)
-//create default lists
-
-const defaultLists=[];
-console.log(createdBoards);
-createdBoards.forEach((board)=>{
     createdBoards.forEach((board) => {
+      defaultLists.push(
+        {
+          title: "Today",
+          boardId: board._id,
+          order: 1,
+        },
+        {
+          title: "This Week",
+          boardId: board._id,
+          order: 2,
+        },
+        {
+          title: "Later",
+          boardId: board._id,
+          order: 3,
+        }
+      );
+    });
 
-  console.log(board);
+    await ListModel.insertMany(defaultLists);
 
-});
-    defaultLists.push({
-        title:"Today",
-        boardId:board._id,
-        order:1,
-    },
-    {
-        title:"This week",
-        boardId:board._id,
-        order:2,
-    },{
-        title:"Later",
-        boardId:board._id,
-        order:3,
+    console.log("Default lists created");
+
+    res.status(201).json({
+      message: "User registered successfully",
+      user,
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+
+// LOGIN
+export const loginUser = async (req, res, next) => {
+  try {
+    console.log("Login API called");
+
+    const { email, password } = req.body;
+
+    // validation
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password required",
+      });
     }
-);
-});
 
-console.log(defaultLists);
-await ListModel.insertMany(defaultLists);
+    // find user
+    const user = await UserModel.findOne({ email });
 
- res.status(201).json({message:"User registered sucesfully",user})
-
-}catch(err){
-    res.status(500).json({message:err.message});
-}
-
-}
-
-
-
-//login
-
-export const loginUser=async (req,res)=>{
-try{
-    const {name,email,password}=req.body;
-
-    //find user
-    const user=await UserModel.findOne({email});
-
-    if(!user){
-        return res.status(400).json({message:"Invalid credentials"});
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid credentials",
+      });
     }
 
-    //compare password
+    // compare password
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
-    const ismatch=await bcrypt.compare(password,user.password);
-
-    if(!ismatch){
-       return res.status(400).json({message:"Invalid credentials"});
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Invalid credentials",
+      });
     }
-//generating token
-    const token=jwt.sign({id:user._id},
-        process.env.JWT_SECRET,
-        {expiresIn:'1d'});
 
-//set cookie
-res.cookie("token",token,{httpOnly:true,secure:false,maxAge:24*60*60*1000,})
+    // generate token
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // set cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    console.log("Login successful");
+
+    res.json({
+      message: "Login successful",
+      token,
+      user,
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
 
 
-res.json({message:"login successful",token,user});
-}catch (err){
-    res.status(500).json({message:err.message});
-}
-}; 
 
-//logout
+// LOGOUT
+export const logoutUser = async (req, res, next) => {
+  try {
+    console.log("Logout API called");
 
-export const logoutUser=(req,res)=>{
-    try{
-    //clear cookie
     res.clearCookie("token");
 
-    res.json({message:"logged out sucessfully"});
-}catch(err){
-    res.status(500).json({message:err.message})
-}
+    res.json({
+      message: "Logged out successfully",
+    });
+
+  } catch (err) {
+    next(err);
+  }
 };

@@ -160,3 +160,12 @@ Content-Type: application/json
 
 ###get activity
 GET http://localhost:5000/api/activity/69fc488c0cbb18f476786f3c
+
+###uploads
+POST http://localhost:5000/api/upload/69fc4a180cbb18f476786f4c
+Content-Type: application/json
+
+{
+  "message":"File uploaded successfully",
+  "file":"uploads/resume.pdf"
+}

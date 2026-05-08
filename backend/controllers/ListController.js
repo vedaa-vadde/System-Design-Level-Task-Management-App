@@ -1,10 +1,13 @@
 import ListModel from "../models/listModel.js";
 import BoardModel from "../models/boardModel.js";
-
 import { createActivity } from "./ActivityController.js";
+import { getIO } from "../sockets/socket.js";
+
+
 // CREATE LIST
-export const createList = async (req, res) => {
+export const createList = async (req, res, next) => {
   try {
+    console.log("Create List API called");
 
     const { title, boardId } = req.body;
 
@@ -14,6 +17,7 @@ export const createList = async (req, res) => {
         message: "Title and boardId required",
       });
     }
+
     // check board exists
     const board = await BoardModel.findById(boardId);
 
@@ -27,19 +31,29 @@ export const createList = async (req, res) => {
     const list = await ListModel.create({
       title,
       boardId,
-
-      // latest position
       order: Date.now(),
     });
 
-    //create activity log
+    console.log("List created:", list._id);
+
+    // activity log
     await createActivity({
-  boardId,
-  listId: list._id,
-  userId: req.user.id,
-  action: "created list",
-  details: `Created list ${title}`,
-});
+      boardId,
+      listId: list._id,
+      userId: req.user.id,
+      action: "created list",
+      details: `Created list ${title}`,
+    });
+
+    // socket emit
+    const io = getIO();
+
+    io.to(boardId.toString()).emit(
+      "list-created",
+      list
+    );
+
+    console.log("Socket emitted: list-created");
 
     res.status(201).json({
       message: "List created successfully",
@@ -47,17 +61,16 @@ export const createList = async (req, res) => {
     });
 
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };
 
 
 
 // GET BOARD LISTS
-export const getBoardLists = async (req, res) => {
+export const getBoardLists = async (req, res, next) => {
   try {
+    console.log("Get Board Lists API called");
 
     const { boardId } = req.params;
 
@@ -68,30 +81,26 @@ export const getBoardLists = async (req, res) => {
     res.json(lists);
 
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };
 
 
 
-//UPDATE LIST 
-export const updateList = async (req, res) => {
+// UPDATE LIST
+export const updateList = async (req, res, next) => {
   try {
+    console.log("Update List API called");
 
     const { id } = req.params;
-
     const { title } = req.body;
 
     const list = await ListModel.findByIdAndUpdate(
       id,
-      {
-        title,
-      },
-      {
-        returnDocument: "after"
-      }
+      { title },
+     {
+  returnDocument: "after"
+}
     );
 
     if (!list) {
@@ -99,13 +108,25 @@ export const updateList = async (req, res) => {
         message: "List not found",
       });
     }
+
+    // activity log
     await createActivity({
-  boardId: list.boardId,
-  listId: list._id,
-  userId: req.user.id,
-  action: "updated list",
-  details: `Updated list to ${title}`,
-});
+      boardId: list.boardId,
+      listId: list._id,
+      userId: req.user.id,
+      action: "updated list",
+      details: `Updated list to ${title}`,
+    });
+
+    // socket emit
+    const io = getIO();
+
+    io.to(list.boardId.toString()).emit(
+      "list-updated",
+      list
+    );
+
+    console.log("Socket emitted: list-updated");
 
     res.json({
       message: "List updated successfully",
@@ -113,17 +134,16 @@ export const updateList = async (req, res) => {
     });
 
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };
 
 
 
-//  DELETE LIST 
-export const deleteList = async (req, res) => {
+// DELETE LIST
+export const deleteList = async (req, res, next) => {
   try {
+    console.log("Delete List API called");
 
     const { id } = req.params;
 
@@ -135,35 +155,54 @@ export const deleteList = async (req, res) => {
       });
     }
 
+    // activity log
+    await createActivity({
+      boardId: list.boardId,
+      listId: list._id,
+      userId: req.user.id,
+      action: "deleted list",
+      details: `Deleted list ${list.title}`,
+    });
+
+    // delete list
     await ListModel.findByIdAndDelete(id);
-await createActivity({
-  boardId: list.boardId,
-  listId: list._id,
-  userId: req.user.id,
-  action: "deleted list",
-  details: `Deleted list ${list.title}`,
-});
+
+    // socket emit
+    const io = getIO();
+
+    io.to(list.boardId.toString()).emit(
+      "list-deleted",
+      id
+    );
+
+    console.log("Socket emitted: list-deleted");
+
     res.json({
       message: "List deleted successfully",
     });
 
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };
 
 
 
-//REORDER LISTS
-export const reorderLists = async (req, res) => {
+// REORDER LISTS
+export const reorderLists = async (req, res, next) => {
   try {
+    console.log("Reorder Lists API called");
 
     const { lists } = req.body;
 
-    // lists = [{id, order}]
+    // validation
+    if (!lists || lists.length === 0) {
+      return res.status(400).json({
+        message: "Lists array required",
+      });
+    }
 
+    // update order
     for (const item of lists) {
       await ListModel.findByIdAndUpdate(
         item.id,
@@ -173,13 +212,26 @@ export const reorderLists = async (req, res) => {
       );
     }
 
+    // get board id
+    const firstList = await ListModel.findById(
+      lists[0].id
+    );
+
+    // socket emit
+    const io = getIO();
+
+    io.to(firstList.boardId.toString()).emit(
+      "lists-reordered",
+      lists
+    );
+
+    console.log("Socket emitted: lists-reordered");
+
     res.json({
       message: "Lists reordered successfully",
     });
 
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };

@@ -2,9 +2,13 @@ import CardModel from "../models/cardModel.js";
 import ListModel from "../models/listModel.js";
 
 import { createActivity } from "./ActivityController.js";
-// create card
-export const createCard = async (req, res) => {
+import { getIO } from "../sockets/socket.js";
+
+
+// CREATE CARD
+export const createCard = async (req, res, next) => {
   try {
+    console.log("Create Card API called");
 
     const {
       title,
@@ -39,35 +43,51 @@ export const createCard = async (req, res) => {
       boardId,
       assignedTo,
       status,
-
-      // drag-drop ordering
       order: Date.now(),
     });
-await createActivity({
-  boardId,
-  listId,
-  cardId: card._id,
-  userId: req.user.id,
-  action: "created card",
-  details: `Created card ${title}`,
-});
+
+    console.log("Card created:", card._id);
+
+    // activity
+    await createActivity({
+      boardId,
+      listId,
+      cardId: card._id,
+      userId: req.user.id,
+      action: "created card",
+      details: `Created card ${title}`,
+    });
+
+    // populate
+    const populatedCard = await CardModel.findById(card._id)
+      .populate("assignedTo", "name email");
+
+    // socket emit
+    const io = getIO();
+
+    io.to(boardId.toString()).emit(
+      "card-created",
+      populatedCard
+    );
+
+    console.log("Socket emitted: card-created");
+
     res.status(201).json({
       message: "Card created successfully",
-      card,
+      card: populatedCard,
     });
 
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };
 
 
 
-//get all board cards
-export const getBoardCards = async (req, res) => {
+// GET ALL BOARD CARDS
+export const getBoardCards = async (req, res, next) => {
   try {
+    console.log("Get Board Cards API called");
 
     const { boardId } = req.params;
 
@@ -80,17 +100,16 @@ export const getBoardCards = async (req, res) => {
     res.json(cards);
 
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };
 
 
 
-//get list cards
-export const getListCards = async (req, res) => {
+// GET LIST CARDS
+export const getListCards = async (req, res, next) => {
   try {
+    console.log("Get List Cards API called");
 
     const { listId } = req.params;
 
@@ -103,17 +122,16 @@ export const getListCards = async (req, res) => {
     res.json(cards);
 
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };
 
 
 
-// update cards
-export const updateCard = async (req, res) => {
+// UPDATE CARD
+export const updateCard = async (req, res, next) => {
   try {
+    console.log("Update Card API called");
 
     const { id } = req.params;
 
@@ -123,38 +141,50 @@ export const updateCard = async (req, res) => {
       {
         returnDocument: "after",
       }
-    );
+    ).populate("assignedTo", "name email");
 
     if (!updatedCard) {
       return res.status(404).json({
         message: "Card not found",
       });
     }
-await createActivity({
-  boardId: updatedCard.boardId,
-  listId: updatedCard.listId,
-  cardId: updatedCard._id,
-  userId: req.user.id,
-  action: "updated card",
-  details: `Updated card ${updatedCard.title}`,
-});
+
+    // activity
+    await createActivity({
+      boardId: updatedCard.boardId,
+      listId: updatedCard.listId,
+      cardId: updatedCard._id,
+      userId: req.user.id,
+      action: "updated card",
+      details: `Updated card ${updatedCard.title}`,
+    });
+
+    // socket emit
+    const io = getIO();
+
+    io.to(updatedCard.boardId.toString()).emit(
+      "card-updated",
+      updatedCard
+    );
+
+    console.log("Socket emitted: card-updated");
+
     res.json({
       message: "Card updated successfully",
-      updatedCard,
+      card: updatedCard,
     });
 
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };
 
 
 
-// delete card
-export const deleteCard = async (req, res) => {
+// DELETE CARD
+export const deleteCard = async (req, res, next) => {
   try {
+    console.log("Delete Card API called");
 
     const { id } = req.params;
 
@@ -165,39 +195,47 @@ export const deleteCard = async (req, res) => {
         message: "Card not found",
       });
     }
-await createActivity({
-  boardId: card.boardId,
-  listId: card.listId,
-  cardId: card._id,
-  userId: req.user.id,
-  action: "deleted card",
-  details: `Deleted card ${card.title}`,
-});
+
+    // activity
+    await createActivity({
+      boardId: card.boardId,
+      listId: card.listId,
+      cardId: card._id,
+      userId: req.user.id,
+      action: "deleted card",
+      details: `Deleted card ${card.title}`,
+    });
+
     await CardModel.findByIdAndDelete(id);
+
+    // socket emit
+    const io = getIO();
+
+    io.to(card.boardId.toString()).emit(
+      "card-deleted",
+      id
+    );
+
+    console.log("Socket emitted: card-deleted");
 
     res.json({
       message: "Card deleted successfully",
     });
 
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };
 
 
 
-// move card
-export const moveCard = async (req, res) => {
+// MOVE CARD
+export const moveCard = async (req, res, next) => {
   try {
+    console.log("Move Card API called");
 
     const { id } = req.params;
-
-    const {
-      newListId,
-      newOrder,
-    } = req.body;
+    const { newListId, newOrder } = req.body;
 
     const card = await CardModel.findById(id);
 
@@ -207,42 +245,54 @@ export const moveCard = async (req, res) => {
       });
     }
 
-    // move card
+    // move
     card.listId = newListId;
-
-    // update order
     card.order = newOrder;
 
     await card.save();
-await createActivity({
-  boardId: card.boardId,
-  listId: newListId,
-  cardId: card._id,
-  userId: req.user.id,
-  action: "moved card",
-  details: `Moved card ${card.title}`,
-});
+
+    // activity
+    await createActivity({
+      boardId: card.boardId,
+      listId: newListId,
+      cardId: card._id,
+      userId: req.user.id,
+      action: "moved card",
+      details: `Moved card ${card.title}`,
+    });
+
+    // populate
+    const populatedCard = await CardModel.findById(card._id)
+      .populate("assignedTo", "name email");
+
+    // socket emit
+    const io = getIO();
+
+    io.to(card.boardId.toString()).emit(
+      "card-moved",
+      populatedCard
+    );
+
+    console.log("Socket emitted: card-moved");
+
     res.json({
       message: "Card moved successfully",
-      card,
+      card: populatedCard,
     });
 
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };
 
 
 
-// reorder
-export const reorderCards = async (req, res) => {
+// REORDER CARDS
+export const reorderCards = async (req, res, next) => {
   try {
+    console.log("Reorder Cards API called");
 
     const { cards } = req.body;
-
-    // cards = [{id, order}]
 
     for (const item of cards) {
       await CardModel.findByIdAndUpdate(
@@ -253,13 +303,18 @@ export const reorderCards = async (req, res) => {
       );
     }
 
+    // socket emit
+    const io = getIO();
+
+    io.emit("cards-reordered", cards);
+
+    console.log("Socket emitted: cards-reordered");
+
     res.json({
       message: "Cards reordered successfully",
     });
 
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };
