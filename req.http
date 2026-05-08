@@ -11,7 +11,7 @@ Content-Type: application/json
 ###login
 
 POST http://localhost:5000/api/auth/login
-content-Type: application/json
+Content-Type: application/json
 
 {
     "name":"khushal",
@@ -42,7 +42,9 @@ Content-Type: application/json
   "title":"Test2"
 }
 ###
-//get signle board
+GET http://localhost:5000/api/auth/protected
+
+###//get signle board
 get http://localhost:5000/api/boards/69fc48b80cbb18f476786f43
 cookie: token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZmMzNTAwZGQ4MzQ2NDkyYWUzYjc1OSIsImlhdCI6MTc3ODE0MDExNSwiZXhwIjoxNzc4MjI2NTE1fQ.r9v-7W8kA761ZB5T-V9IW_Q5DaSRSSS-ljfC2jLcAX4"
 
@@ -95,6 +97,10 @@ content-Type: application/json
 ###create card
 POST http://localhost:5000/api/cards
 Content-Type: application/json
+Cookie: token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZmMzNTAwZGQ4MzQ2NDkyYWUzYjc1OSIsImlhdCI6MTc3ODE0MDExNSwiZXhwIjoxNzc4MjI2NTE1fQ.r9v-7W8kA761ZB5T-V9IW_Q5DaSRSSS-ljfC2jLcAX4"
+
+
+
 
 {
   "title":"eat",
@@ -148,6 +154,9 @@ Content-Type: application/json
     }
   ]
 }
+
+###
+
 
 ###get activity
 GET http://localhost:5000/api/activity/69fc488c0cbb18f476786f3c

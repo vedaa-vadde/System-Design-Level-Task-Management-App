@@ -121,7 +121,7 @@ export const updateCard = async (req, res) => {
       id,
       req.body,
       {
-        new: true,
+        returnDocument: "after",
       }
     );
 

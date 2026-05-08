@@ -90,7 +90,7 @@ export const updateList = async (req, res) => {
         title,
       },
       {
-        new: true,
+        returnDocument: "after"
       }
     );
 
